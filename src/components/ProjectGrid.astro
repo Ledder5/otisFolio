@@ -1,0 +1,27 @@
+---
+// This will eventually fetch from your Markdown files using:
+// const projects = await getCollection('projects');
+---
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
+  
+  <a href="/projects/project-1" class="group relative overflow-hidden rounded-xl col-span-2 row-span-2 shadow-lg block">
+    <img src="/placeholder-1.jpg" alt="Project 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+    
+    <div class="absolute inset-0 bg-black/40 transition-all duration-300 group-hover:bg-black/80 flex flex-col justify-end group-hover:justify-center p-6 text-white">
+      <h3 class="text-2xl font-bold transition-all duration-300 transform group-hover:-translate-y-2">E-Commerce Platform</h3>
+      
+      <div class="opacity-0 h-0 overflow-hidden transition-all duration-300 group-hover:opacity-100 group-hover:h-auto mt-2">
+        <p class="text-sm mb-4">A full-stack marketplace built with Astro and Stripe.</p>
+        <span class="inline-block border border-white px-4 py-2 rounded text-sm hover:bg-white hover:text-black transition-colors">Click to read more</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="/projects/project-2" class="group relative overflow-hidden rounded-xl col-span-1 row-span-1 shadow-lg block">
+    </a>
+  
+  <a href="/projects/project-3" class="group relative overflow-hidden rounded-xl col-span-2 row-span-1 shadow-lg block">
+    </a>
+
+</div>

@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #ffffff;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --accent: #3b82f6;
+  }
+  
+  .dark {
+    --bg-color: #0f172a;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --accent: #60a5fa;
+  }
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease;
+}
