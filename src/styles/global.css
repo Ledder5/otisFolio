@@ -71,24 +71,3 @@ html[data-astro-transition-dir="back"]::view-transition-new(root) {
   from { opacity: 1; }
   to { opacity: 0; }
 }
-
-/* ==================================================
-   CUSTOM ANIMATIONS
-   ================================================== */
-@keyframes fadeSlideUp {
-  0% {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-slide-up {
-  /* Runs for 0.8s to match your zoom, with a tiny delay so the zoom starts first */
-  animation: fadeSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  animation-delay: 0.1s;
-  opacity: 0; /* Ensures it stays invisible until the delay finishes */
-}
