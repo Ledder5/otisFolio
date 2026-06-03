@@ -36,13 +36,16 @@ const { Content } = await render(project);
     </button>
 
     <div class="w-full h-[40vh] md:h-[60vh] relative overflow-hidden">
-      <img
-        transition:name={`img-${project.id}`}
-        src={project.data.image}
-        alt={project.data.title}
-        class="block w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] to-transparent"></div>
+      
+      <div transition:name={`img-${project.id}`} class="w-full h-full">
+        <img
+          src={project.data.image}
+          alt={project.data.title}
+          class="block w-full h-full object-cover"
+        />
+      </div>
+      
+      <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] to-transparent pointer-events-none"></div>
     </div>
 
     <article class="p-8 md:p-16 max-w-4xl mx-auto -mt-32 relative z-10">

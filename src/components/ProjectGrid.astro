@@ -19,22 +19,27 @@ const getSizeClass = (size: string) => {
   {allProjects.map((project: CollectionEntry<'projects'>) => (
     <a 
       href={`/projects/${project.id}`}
-      class={`group relative overflow-hidden rounded-xl shadow-lg block ${getSizeClass(project.data.size)}`}
+      class={`project-card relative block rounded-xl shadow-lg ${getSizeClass(project.data.size)} transition-all duration-300`}
     >
-      <img 
-        src={project.data.image} 
-        alt={project.data.title} 
-        transition:name={`img-${project.id}`}
-        class="block w-full h-full object-cover" 
-      />
+      <div transition:name={`img-${project.id}`} class="absolute inset-0 z-0 overflow-hidden rounded-xl">
+        <img 
+          src={project.data.image} 
+          alt={project.data.title} 
+          class="project-img w-full h-full object-cover transition-transform duration-700 ease-out" 
+        />
+      </div>
       
-      <div class="absolute inset-0 bg-black/40 transition-all duration-300 group-hover:bg-black/80 flex flex-col justify-end group-hover:justify-center p-6 text-white">
-        
-        <h3 transition:name={`title-${project.id}`} class="text-2xl font-bold transition-all duration-300 transform group-hover:-translate-y-2">
+      <div class="project-overlay absolute inset-0 z-10 bg-black/60 opacity-0 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+      
+      <div class="absolute inset-0 z-20 flex flex-col justify-end p-6 text-white pointer-events-none">
+        <h3 
+          transition:name={`title-${project.id}`} 
+          class="project-title text-2xl font-bold drop-shadow-xl transition-all duration-500"
+        >
           {project.data.title}
         </h3>
         
-        <div class="opacity-0 h-0 overflow-hidden transition-all duration-300 group-hover:opacity-100 group-hover:h-auto mt-2">
+        <div class="project-summary opacity-0 h-0 overflow-hidden transition-all duration-500 mt-2">
           <p class="text-sm mb-3">{project.data.summary}</p>
           
           <div class="flex flex-wrap gap-1 mb-4">
@@ -45,7 +50,7 @@ const getSizeClass = (size: string) => {
             ))}
           </div>
 
-          <span class="inline-block border border-white px-4 py-2 rounded text-sm hover:bg-white hover:text-black transition-colors">
+          <span class="inline-block border border-white px-4 py-2 rounded text-sm bg-transparent">
             Click to read more
           </span>
         </div>
@@ -54,6 +59,37 @@ const getSizeClass = (size: string) => {
   ))}
 
 </div>
+
+<style>
+  /* 1. The Accent Ring & Shadow */
+  .project-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    outline: 4px solid var(--accent);
+    outline-offset: 2px;
+  }
+  
+  /* 2. The Image Zoom */
+  .project-card:hover .project-img {
+    transform: scale(1.1);
+  }
+  
+  /* 3. The Dark Fade-in */
+  .project-card:hover .project-overlay {
+    opacity: 1;
+  }
+  
+  /* 4. The Title Glide */
+  .project-card:hover .project-title {
+    transform: translateY(-16px);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  
+  /* 5. The Summary Reveal */
+  .project-card:hover .project-summary {
+    opacity: 1;
+    height: auto; /* Required to trigger the expansion */
+  }
+</style>
 
 <script>
   document.addEventListener('astro:page-load', () => {
@@ -72,23 +108,15 @@ const getSizeClass = (size: string) => {
         isAppending = true;
 
         originalCards.forEach(card => {
-          // 1. Cast as HTMLElement
           const clone = card.cloneNode(true) as HTMLElement;
           
-          // 2. CRITICAL FIX: Astro uses 'data-astro-transition-scope' to map transitions.
-          // We must destroy this attribute on the clones to prevent duplicate transition IDs.
-          
-          // Check if the card wrapper itself has it (just to be safe)
           clone.removeAttribute('data-astro-transition-scope');
-
-          // Find all images, titles, or children inside the clone that have the attribute and strip it
           const elementsWithTransitions = clone.querySelectorAll('[data-astro-transition-scope]');
           elementsWithTransitions.forEach((node) => {
             const el = node as HTMLElement;
             el.removeAttribute('data-astro-transition-scope');
           });
 
-          // 3. Append the safe clone
           grid.appendChild(clone);
         });
 

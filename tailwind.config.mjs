@@ -2,12 +2,15 @@
 import typography from '@tailwindcss/typography';
 
 export default {
-  // This tells Tailwind exactly where to look for your classes
   content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
   darkMode: 'class', 
   theme: {
-    extend: {},
+    extend: {
+      // Tell Tailwind to link the 'accent' class name to your CSS variable
+      colors: {
+        accent: 'var(--accent)',
+      }
+    },
   },
-  // This activates the typography plugin
   plugins: [typography],
 };
