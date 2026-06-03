@@ -39,3 +39,56 @@ body {
 ::view-transition-new(root) {
   animation-duration: 1.2s;
 }
+
+/* ==================================================
+   VIEW TRANSITION: ASTRO NATIVE BACKWARDS FADE
+   ================================================== */
+/* Astro automatically adds data-astro-transition-dir="back" to the HTML 
+  when you hit the back button. We intercept that natively here!
+*/
+
+/* 1. Prevent the browser from trying to blend the two layers together */
+html[data-astro-transition-dir="back"]::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
+/* 2. Force the OLD page (Your Project) to the front, and dissolve it */
+html[data-astro-transition-dir="back"]::view-transition-old(root) {
+  z-index: 2; 
+  animation: closeFadeOut 0.4s ease-out forwards;
+  mix-blend-mode: normal;
+}
+
+/* 3. Force the NEW page (The Grid) to the back, and freeze it in place */
+html[data-astro-transition-dir="back"]::view-transition-new(root) {
+  z-index: 1; 
+  animation: none; 
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+
+@keyframes closeFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ==================================================
+   CUSTOM ANIMATIONS
+   ================================================== */
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-up {
+  /* Runs for 0.8s to match your zoom, with a tiny delay so the zoom starts first */
+  animation: fadeSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.1s;
+  opacity: 0; /* Ensures it stays invisible until the delay finishes */
+}

@@ -93,6 +93,10 @@ const getSizeClass = (size: string) => {
 
 <script>
   document.addEventListener('astro:page-load', () => {
+    
+    // ==========================================
+    // 1. INFINITE SCROLL LOGIC (Remains the same)
+    // ==========================================
     const grid = document.getElementById('project-grid');
     if (!grid) return;
 
@@ -131,5 +135,48 @@ const getSizeClass = (size: string) => {
     document.addEventListener('astro:before-swap', () => {
       window.removeEventListener('scroll', handleInfiniteScroll);
     }, { once: true });
+
+
+    // ==========================================
+    // 2. NEW: THE DYNAMIC TRANSITION SWAPPER
+    // ==========================================
+    // We use 'mousedown' so our DOM changes happen a split-second before Astro triggers the page transition
+    document.addEventListener('mousedown', (e) => {
+      const card = (e.target as HTMLElement).closest('a.project-card');
+      if (!card) return;
+
+      const href = card.getAttribute('href');
+      if (!href) return;
+      
+      const projectId = href.split('/').pop();
+      
+      // Find every copy of this project card on the page (Originals + Clones)
+      const allMatchingCards = document.querySelectorAll(`a.project-card[href="${href}"]`);
+
+      allMatchingCards.forEach(c => {
+        // 1. Find the elements that hold the transition names
+        const imgWrapper = c.querySelector('.project-img')?.parentElement as HTMLElement;
+        const title = c.querySelector('.project-title') as HTMLElement;
+        
+        // 2. Nuke the transition names from all copies (This forcefully disconnects the original at the top of the page)
+        if (imgWrapper) {
+          imgWrapper.style.viewTransitionName = 'none';
+          imgWrapper.removeAttribute('data-astro-transition-scope');
+        }
+        if (title) {
+          title.style.viewTransitionName = 'none';
+          title.removeAttribute('data-astro-transition-scope');
+        }
+      });
+
+      // 3. Reactivate the transition names ONLY on the specific card under the user's mouse
+      const activeImgWrapper = card.querySelector('.project-img')?.parentElement as HTMLElement;
+      const activeTitle = card.querySelector('.project-title') as HTMLElement;
+
+      // Astro uses exactly the string you provided in transition:name
+      if (activeImgWrapper) activeImgWrapper.style.viewTransitionName = `img-${projectId}`;
+      if (activeTitle) activeTitle.style.viewTransitionName = `title-${projectId}`;
+    });
+
   });
 </script>

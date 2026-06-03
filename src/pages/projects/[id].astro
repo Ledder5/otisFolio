@@ -24,10 +24,10 @@ const { Content } = await render(project);
   >
     </aside>
 
-  <main class="w-full md:w-2/3 ml-auto min-h-screen relative bg-[var(--bg-color)]">
+  <main id="detail-main" class="w-full md:w-2/3 ml-auto min-h-screen relative bg-[var(--bg-color)]">
     
     <button 
-      onclick="window.history.length > 1 ? history.back() : window.location.href = '/'" 
+      id="close-btn"
       class="fixed top-6 right-6 md:top-10 md:right-10 z-50 bg-black/50 hover:bg-black text-white rounded-full p-3 backdrop-blur-md transition-all duration-300 group cursor-pointer"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transform group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,7 +37,7 @@ const { Content } = await render(project);
 
     <div class="w-full h-[40vh] md:h-[60vh] relative overflow-hidden">
       
-      <div transition:name={`img-${project.id}`} class="w-full h-full">
+      <div id="detail-img-wrapper" transition:name={`img-${project.id}`} class="w-full h-full">
         <img
           src={project.data.image}
           alt={project.data.title}
@@ -45,11 +45,12 @@ const { Content } = await render(project);
         />
       </div>
       
-      <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] to-transparent pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-color)] to-transparent pointer-events-none animate-fade-slide-up"></div>
+      
     </div>
 
     <article class="p-8 md:p-16 max-w-4xl mx-auto -mt-32 relative z-10">
-      <h1 transition:name={`title-${project.id}`} class="text-4xl md:text-6xl font-bold mb-6">
+      <h1 id="detail-title" transition:name={`title-${project.id}`} class="text-4xl md:text-6xl font-bold mb-6 drop-shadow-md">
         {project.data.title}
       </h1>
       
@@ -64,4 +65,36 @@ const { Content } = await render(project);
       </div>
     </article>
   </main>
+
+  <script>
+  document.addEventListener('astro:page-load', () => {
+    const closeBtn = document.getElementById('close-btn');
+    if (!closeBtn) return;
+
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      // 1. Nuke the IDs so the image doesn't zoom back out
+      const imgWrapper = document.getElementById('detail-img-wrapper');
+      const title = document.getElementById('detail-title');
+
+      if (imgWrapper) {
+        imgWrapper.style.viewTransitionName = 'none';
+        imgWrapper.removeAttribute('data-astro-transition-scope');
+      }
+      if (title) {
+        title.style.viewTransitionName = 'none';
+        title.removeAttribute('data-astro-transition-scope');
+      }
+
+      // 2. Trigger Astro's native "Back" navigation
+      if (window.history.length > 1) {
+        window.history.back(); // This secretly tells Astro to apply the "back" attribute!
+      } else {
+        window.location.href = '/';
+      }
+    });
+  });
+</script>
+
 </Layout>
