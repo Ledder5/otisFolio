@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -24,4 +24,16 @@ body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   transition: background-color 0.3s ease;
+}
+
+/* Target the animation speed of all View Transitions */
+::view-transition-group(*) {
+  animation-duration: 0.8s; /* Change this to whatever feels best (e.g., 0.5s to 1.2s) */
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /* A buttery smooth ease-in-out curve */
+}
+
+/* Optional: If you want the old page to fade out slower while the image grows */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.8s;
 }

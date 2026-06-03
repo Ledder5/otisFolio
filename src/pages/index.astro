@@ -6,7 +6,8 @@ import ProjectGrid from '../components/ProjectGrid.astro';
 <Layout>
   <aside 
     id="hero-sidebar" 
-    class="fixed md:relative top-0 left-0 z-50 w-full h-screen bg-[var(--bg-color)] transition-all duration-700 ease-in-out md:w-full flex flex-col justify-center p-8 md:p-24"
+    transition:persist="sidebar"
+    class="fixed top-0 left-0 z-50 w-full md:w-full h-screen bg-[var(--bg-color)] transition-all duration-700 ease-in-out flex flex-col justify-center p-8 md:p-24"
   >
     <div class="animate-fade-in">
       <h1 class="text-5xl font-bold mb-4">Hi, I'm [Your Name]</h1>
@@ -33,7 +34,7 @@ import ProjectGrid from '../components/ProjectGrid.astro';
 
   <main 
     id="projects-area" 
-    class="w-full md:w-2/3 ml-auto opacity-0 translate-y-20 transition-all duration-1000 ease-out pt-screen md:pt-0"
+    class="w-full md:w-2/3 ml-auto opacity-0 translate-y-20 transition-all duration-1000 ease-out pt-[100vh] md:pt-8"
   >
     <div class="p-4 md:p-8">
       <ProjectGrid />
@@ -42,28 +43,37 @@ import ProjectGrid from '../components/ProjectGrid.astro';
 </Layout>
 
 <script>
-  // This script handles the funnel scroll effect
-  window.addEventListener('scroll', () => {
+  // Wrap the layout shift logic in Astro's router lifecycle event
+  document.addEventListener('astro:page-load', () => {
     const sidebar = document.getElementById('hero-sidebar');
     const projects = document.getElementById('projects-area');
-
-	// GUARD CLAUSE: If these elements aren't on the page, stop here.
-    if (!sidebar || !projects) return;
     
-    if (window.scrollY > 50) {
-      // User scrolled: Shrink sidebar to left, fade in projects
-      sidebar.classList.remove('md:w-full');
-      sidebar.classList.add('md:w-1/3', 'shadow-xl');
-      
-      projects.classList.remove('opacity-0', 'translate-y-20');
-      projects.classList.add('opacity-100', 'translate-y-0');
-    } else {
-      // User at top: Full screen landing
-      sidebar.classList.add('md:w-full');
-      sidebar.classList.remove('md:w-1/3', 'shadow-xl');
-      
-      projects.classList.add('opacity-0', 'translate-y-20');
-      projects.classList.remove('opacity-100', 'translate-y-0');
-    }
+    if (!sidebar || !projects) return;
+
+    const handleLayoutShift = () => {
+      if (window.scrollY > 50) {
+        sidebar.classList.remove('md:w-full');
+        sidebar.classList.add('md:w-1/3', 'shadow-xl');
+        
+        projects.classList.remove('opacity-0', 'translate-y-20');
+        projects.classList.add('opacity-100', 'translate-y-0');
+      } else {
+        sidebar.classList.add('md:w-full');
+        sidebar.classList.remove('md:w-1/3', 'shadow-xl');
+        
+        projects.classList.add('opacity-0', 'translate-y-20');
+        projects.classList.remove('opacity-100', 'translate-y-0');
+      }
+    };
+
+    // Run it once immediately in case the user reloads halfway down the page
+    handleLayoutShift(); 
+
+    window.addEventListener('scroll', handleLayoutShift);
+
+    // Clean up to prevent duplicate listeners
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('scroll', handleLayoutShift);
+    }, { once: true });
   });
 </script>

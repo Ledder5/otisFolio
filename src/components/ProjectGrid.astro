@@ -1,27 +1,107 @@
 ---
-// This will eventually fetch from your Markdown files using:
-// const projects = await getCollection('projects');
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+const allProjects = await getCollection('projects');
+
+const getSizeClass = (size: string) => {
+  switch (size) {
+    case '2x2': return 'col-span-2 row-span-2 md:col-span-2 md:row-span-2';
+    case '2x1': return 'col-span-2 row-span-1 md:col-span-2 md:row-span-1';
+    case '1x1': 
+    default:    return 'col-span-2 row-span-1 md:col-span-1 md:row-span-1';
+  }
+};
 ---
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
+<div id="project-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px]">
   
-  <a href="/projects/project-1" class="group relative overflow-hidden rounded-xl col-span-2 row-span-2 shadow-lg block">
-    <img src="/placeholder-1.jpg" alt="Project 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-    
-    <div class="absolute inset-0 bg-black/40 transition-all duration-300 group-hover:bg-black/80 flex flex-col justify-end group-hover:justify-center p-6 text-white">
-      <h3 class="text-2xl font-bold transition-all duration-300 transform group-hover:-translate-y-2">E-Commerce Platform</h3>
+  {allProjects.map((project: CollectionEntry<'projects'>) => (
+    <a 
+      href={`/projects/${project.id}`}
+      class={`group relative overflow-hidden rounded-xl shadow-lg block ${getSizeClass(project.data.size)}`}
+    >
+      <img 
+        src={project.data.image} 
+        alt={project.data.title} 
+        transition:name={`img-${project.id}`}
+        class="block w-full h-full object-cover" 
+      />
       
-      <div class="opacity-0 h-0 overflow-hidden transition-all duration-300 group-hover:opacity-100 group-hover:h-auto mt-2">
-        <p class="text-sm mb-4">A full-stack marketplace built with Astro and Stripe.</p>
-        <span class="inline-block border border-white px-4 py-2 rounded text-sm hover:bg-white hover:text-black transition-colors">Click to read more</span>
-      </div>
-    </div>
-  </a>
+      <div class="absolute inset-0 bg-black/40 transition-all duration-300 group-hover:bg-black/80 flex flex-col justify-end group-hover:justify-center p-6 text-white">
+        
+        <h3 transition:name={`title-${project.id}`} class="text-2xl font-bold transition-all duration-300 transform group-hover:-translate-y-2">
+          {project.data.title}
+        </h3>
+        
+        <div class="opacity-0 h-0 overflow-hidden transition-all duration-300 group-hover:opacity-100 group-hover:h-auto mt-2">
+          <p class="text-sm mb-3">{project.data.summary}</p>
+          
+          <div class="flex flex-wrap gap-1 mb-4">
+            {project.data.tags.map((tag: string) => (
+              <span class="text-xs bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                {tag}
+              </span>
+            ))}
+          </div>
 
-  <a href="/projects/project-2" class="group relative overflow-hidden rounded-xl col-span-1 row-span-1 shadow-lg block">
+          <span class="inline-block border border-white px-4 py-2 rounded text-sm hover:bg-white hover:text-black transition-colors">
+            Click to read more
+          </span>
+        </div>
+      </div>
     </a>
-  
-  <a href="/projects/project-3" class="group relative overflow-hidden rounded-xl col-span-2 row-span-1 shadow-lg block">
-    </a>
+  ))}
 
 </div>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const grid = document.getElementById('project-grid');
+    if (!grid) return;
+
+    const originalCards = Array.from(grid.children);
+    let isAppending = false;
+
+    const handleInfiniteScroll = () => {
+      if (isAppending) return;
+
+      const distanceToBottom = document.documentElement.scrollHeight - (window.scrollY + window.innerHeight);
+
+      if (distanceToBottom < 600) {
+        isAppending = true;
+
+        originalCards.forEach(card => {
+          // 1. Cast as HTMLElement
+          const clone = card.cloneNode(true) as HTMLElement;
+          
+          // 2. CRITICAL FIX: Astro uses 'data-astro-transition-scope' to map transitions.
+          // We must destroy this attribute on the clones to prevent duplicate transition IDs.
+          
+          // Check if the card wrapper itself has it (just to be safe)
+          clone.removeAttribute('data-astro-transition-scope');
+
+          // Find all images, titles, or children inside the clone that have the attribute and strip it
+          const elementsWithTransitions = clone.querySelectorAll('[data-astro-transition-scope]');
+          elementsWithTransitions.forEach((node) => {
+            const el = node as HTMLElement;
+            el.removeAttribute('data-astro-transition-scope');
+          });
+
+          // 3. Append the safe clone
+          grid.appendChild(clone);
+        });
+
+        setTimeout(() => {
+          isAppending = false;
+        }, 100);
+      }
+    };
+
+    window.addEventListener('scroll', handleInfiniteScroll);
+
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('scroll', handleInfiniteScroll);
+    }, { once: true });
+  });
+</script>
